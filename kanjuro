@@ -1,0 +1,85 @@
+#!/usr/bin/env bash
+
+## FUNCTIONS
+function kanjuro-docker-compose() {
+	docker compose -f "$project_dir"/docker-compose.yml "$@"
+}
+
+function kanjuro-cli() {
+	"$kanjuro_dir/kanjuro" "$@"
+}
+
+function kanjuro_project_is_running() {
+	if [ -z "$(kanjuro-docker-compose ps --quiet | head -n 1)" ]; then
+		false
+	fi
+}
+
+function prepare_project_vars() {
+	project_dir="$PWD"
+	project_name=$(basename "$PWD")
+
+	if [[ "$project_dir" == "$kanjuro_dir" ]]; then
+		echo "Please, run this command from the project's directory"
+		exit 1
+	fi
+
+	if [[ ! -f "$project_dir/.env.example" ]]; then
+		echo "Couldn't find .env.example, are you sure $project_dir is a valid project?"
+		exit 1
+	fi
+}
+
+## VARIABLES
+kanjuro_dir=$(cd "$(readlink -f "$0" | xargs dirname)" && pwd)
+kanjuro_scripts_dir="$kanjuro_dir/scripts"
+
+## EXPORTS
+export project_name
+export project_dir
+export kanjuro_dir
+export kanjuro_scripts_dir
+export -f kanjuro-docker-compose
+export -f kanjuro-cli
+export -f kanjuro_project_is_running
+
+## COMMANDS
+command=$1
+
+case "$command" in
+'help' | '')
+	echo "kanjuro compose     | Run docker compose command for a site"
+	echo "kanjuro install     | Install a new site"
+	echo "kanjuro permissions | Fix site permissions"
+	echo "kanjuro restart     | Restart a site"
+	echo "kanjuro shell       | ssh into a site's running container"
+	echo "kanjuro start       | Start a site"
+	echo "kanjuro stop        | Stop a site"
+	echo "kanjuro update      | Update a site"
+	;;
+'stop')
+	prepare_project_vars
+
+	kanjuro-docker-compose down
+	;;
+'restart')
+	prepare_project_vars
+
+	kanjuro-cli stop
+	kanjuro-cli start
+	;;
+'compose')
+	prepare_project_vars
+
+	kanjuro-docker-compose "${@:2}"
+	;;
+
+'install' | 'permissions' | 'shell' | 'start' | 'update')
+	prepare_project_vars
+
+	"$kanjuro_scripts_dir/$command.sh" "${@:2}"
+	;;
+*)
+	echo "Unknown command '$command'"
+	;;
+esac
