@@ -32,4 +32,6 @@ else
 	kanjuro-docker-compose run --rm app php artisan view:cache
 fi
 
+kanjuro-cli permissions
+
 echo "Updated successfully!"
