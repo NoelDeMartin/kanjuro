@@ -19,17 +19,35 @@ kanjuro-docker-compose pull
 
 if kanjuro_project_is_running; then
 	kanjuro-cli restart
-	kanjuro-docker-compose exec app php artisan config:cache
-	kanjuro-docker-compose exec app php artisan event:cache
-	kanjuro-docker-compose exec app php artisan optimize
-	kanjuro-docker-compose exec app php artisan route:cache
-	kanjuro-docker-compose exec app php artisan view:cache
+
+	# Update Laravel
+	if [ -d "$project_dir/storage" ]; then
+		kanjuro-docker-compose exec app php artisan config:cache
+		kanjuro-docker-compose exec app php artisan event:cache
+		kanjuro-docker-compose exec app php artisan optimize
+		kanjuro-docker-compose exec app php artisan route:cache
+		kanjuro-docker-compose exec app php artisan view:cache
+
+		# Update Statamic
+		if kanjuro-docker-compose exec app cat composer.json | grep -q "statamic/cms"; then
+			kanjuro-docker-compose exec app php artisan statamic:stache:refresh
+		fi
+	fi
 else
-	kanjuro-docker-compose run --rm app php artisan config:cache
-	kanjuro-docker-compose run --rm app php artisan event:cache
-	kanjuro-docker-compose run --rm app php artisan optimize
-	kanjuro-docker-compose run --rm app php artisan route:cache
-	kanjuro-docker-compose run --rm app php artisan view:cache
+
+	# Update Laravel
+	if [ -d "$project_dir/storage" ]; then
+		kanjuro-docker-compose run --rm app php artisan config:cache
+		kanjuro-docker-compose run --rm app php artisan event:cache
+		kanjuro-docker-compose run --rm app php artisan optimize
+		kanjuro-docker-compose run --rm app php artisan route:cache
+		kanjuro-docker-compose run --rm app php artisan view:cache
+
+		# Update Statamic
+		if kanjuro-docker-compose run --rm app cat composer.json | grep -q "statamic/cms"; then
+			kanjuro-docker-compose run --rm app php artisan statamic:stache:refresh
+		fi
+	fi
 fi
 
 kanjuro-cli permissions
