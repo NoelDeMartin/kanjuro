@@ -30,10 +30,24 @@ function clean_up() {
 	exit 1
 }
 
+function ask_resend_key() {
+	echo "If you want to send emails, please introduce your Resend key:"
+	read -r RESEND_KEY
+}
+
 # Prepare .env
 echo "Preparing environment..."
 
 cp .env.example .env
+
+# Prepare resend
+if grep -q "DB_CONNECTION=sqlite" .env; then
+	ask_resend_key
+
+	if [ -n "$RESEND_KEY" ]; then
+		sed -i "s/^RESEND_KEY=.*/RESEND_KEY=$RESEND_KEY/" .env
+	fi
+fi
 
 # Prepare nginx-agora
 echo "Registering nginx-agora site..."
@@ -55,19 +69,19 @@ if [ -d "$project_dir/storage" ]; then
 	kanjuro-docker-compose run --rm app php artisan view:cache
 
 	# Prepare Passport
-	if kanjuro-docker-compose run --rm app cat composer.json | grep -q "laravel/passport"; then
+	if kanjuro-docker-compose run --rm app grep -q "laravel/passport" composer.json; then
 		kanjuro-docker-compose run --rm app php artisan passport:keys
 	fi
 
 	# Prepare Statamic
-	if kanjuro-docker-compose run --rm app cat composer.json | grep -q "statamic/cms"; then
+	if kanjuro-docker-compose run --rm app grep -q "statamic/cms" composer.json; then
 		echo "Initializing Statamic..."
 
 		kanjuro-docker-compose run --rm app php artisan statamic:stache:warm
 	fi
 
 	# Prepare Database
-	if <.env grep -q "DB_CONNECTION=sqlite"; then
+	if grep -q "DB_CONNECTION=sqlite" .env; then
 		touch "$project_dir/database/database.sqlite"
 
 		kanjuro-docker-compose run --rm app php artisan migrate --force

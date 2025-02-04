@@ -29,7 +29,7 @@ if kanjuro_project_is_running; then
 		kanjuro-docker-compose exec app php artisan view:cache
 
 		# Update Statamic
-		if kanjuro-docker-compose exec app cat composer.json | grep -q "statamic/cms"; then
+		if kanjuro-docker-compose exec app grep -q "statamic/cms" composer.json; then
 			kanjuro-docker-compose exec app php artisan statamic:stache:refresh
 		fi
 
@@ -49,7 +49,7 @@ else
 		kanjuro-docker-compose run --rm app php artisan view:cache
 
 		# Update Statamic
-		if kanjuro-docker-compose run --rm app cat composer.json | grep -q "statamic/cms"; then
+		if kanjuro-docker-compose run --rm app grep -q "statamic/cms" composer.json; then
 			kanjuro-docker-compose run --rm app php artisan statamic:stache:refresh
 		fi
 
