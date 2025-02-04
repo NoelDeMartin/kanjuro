@@ -54,11 +54,23 @@ if [ -d "$project_dir/storage" ]; then
 	kanjuro-docker-compose run --rm app php artisan route:cache
 	kanjuro-docker-compose run --rm app php artisan view:cache
 
+	# Prepare Passport
+	if kanjuro-docker-compose run --rm app cat composer.json | grep -q "laravel/passport"; then
+		kanjuro-docker-compose run --rm app php artisan passport:keys
+	fi
+
 	# Prepare Statamic
 	if kanjuro-docker-compose run --rm app cat composer.json | grep -q "statamic/cms"; then
 		echo "Initializing Statamic..."
 
 		kanjuro-docker-compose run --rm app php artisan statamic:stache:warm
+	fi
+
+	# Prepare Database
+	if cat .env | grep -q "DB_CONNECTION=sqlite"; then
+		touch "$project_dir/database/database.sqlite"
+
+		kanjuro-docker-compose run --rm app php artisan migrate --force
 	fi
 fi
 

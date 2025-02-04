@@ -32,6 +32,11 @@ if kanjuro_project_is_running; then
 		if kanjuro-docker-compose exec app cat composer.json | grep -q "statamic/cms"; then
 			kanjuro-docker-compose exec app php artisan statamic:stache:refresh
 		fi
+
+		# Update Database
+		if [ -f "$project_dir/database/database.sqlite" ]; then
+			kanjuro-docker-compose exec app php artisan migrate --force
+		fi
 	fi
 else
 
@@ -46,6 +51,11 @@ else
 		# Update Statamic
 		if kanjuro-docker-compose run --rm app cat composer.json | grep -q "statamic/cms"; then
 			kanjuro-docker-compose run --rm app php artisan statamic:stache:refresh
+		fi
+
+		# Update Database
+		if [ -f "$project_dir/database/database.sqlite" ]; then
+			kanjuro-docker-compose run --rm app php artisan migrate --force
 		fi
 	fi
 fi
