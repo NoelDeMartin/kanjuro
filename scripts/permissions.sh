@@ -18,6 +18,6 @@ fi
 sudo chown -R "$wwwdata_uid":docker "$project_dir/storage"
 
 # Database
-if cat .env | grep -q "DB_CONNECTION=sqlite"; then
-	sudo chown -R $wwwdata_uid:docker database
+if <.env grep -q "DB_CONNECTION=sqlite"; then
+	sudo chown -R "$wwwdata_uid":docker database
 fi

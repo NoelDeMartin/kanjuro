@@ -67,7 +67,7 @@ if [ -d "$project_dir/storage" ]; then
 	fi
 
 	# Prepare Database
-	if cat .env | grep -q "DB_CONNECTION=sqlite"; then
+	if <.env grep -q "DB_CONNECTION=sqlite"; then
 		touch "$project_dir/database/database.sqlite"
 
 		kanjuro-docker-compose run --rm app php artisan migrate --force
