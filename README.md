@@ -7,5 +7,5 @@ Collection of bash scripts that I use to manage headless deployments with Docker
 Using this architecture can sometimes eat up a lot of space, given that each update downloads new Docker images. In order to improve that, make sure to run the following command from time to time:
 
 ```sh
-    docker system prune
+docker system prune
 ```
