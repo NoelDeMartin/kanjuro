@@ -9,3 +9,9 @@ Using this architecture can sometimes eat up a lot of space, given that each upd
 ```sh
 docker system prune
 ```
+
+You can also configure a cron job that runs once a week:
+
+```sh
+0 4 * * * /usr/bin/docker system prune -f
+```
