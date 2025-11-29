@@ -40,6 +40,25 @@ echo "Preparing environment..."
 
 cp .env.example .env
 
+if [ -n "$KANJURO_ASK_ENV" ]; then
+	IFS=',' read -ra env_vars <<<"$KANJURO_ASK_ENV"
+
+	for var in "${env_vars[@]}"; do
+		var=$(echo "$var" | xargs)
+
+		if [ -z "$var" ]; then
+			continue
+		fi
+
+		echo "Please enter a value for $var:"
+		read -r value
+
+		if [ -n "$value" ]; then
+			sed -i "s/^${var}=.*/${var}=${value}/" .env
+		fi
+	done
+fi
+
 # Prepare resend
 if grep -q "DB_CONNECTION=sqlite" .env; then
 	ask_resend_key
@@ -54,7 +73,12 @@ echo "Registering nginx-agora site..."
 
 nginx_file=$(find "$project_dir/nginx" -maxdepth 1 -name "*.conf" -printf "%f\n" | head -n 1)
 
-nginx-agora install "$project_dir/nginx/$nginx_file" "$project_dir" "$project_name"
+if [[ "$KANJURO_PROXY" == "true" ]]; then
+	nginx-agora install-proxy "$project_dir/nginx/$nginx_file" "$project_name"
+else
+	nginx-agora install "$project_dir/nginx/$nginx_file" "$project_dir" "$project_name"
+fi
+
 nginx-agora enable "$project_name"
 
 # Prepare Laravel

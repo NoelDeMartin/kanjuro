@@ -28,6 +28,12 @@ function prepare_project_vars() {
 		echo "Couldn't find .env.example, are you sure $project_dir is a valid project?"
 		exit 1
 	fi
+
+	if [[ -f "$project_dir/.env" ]]; then
+		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env")
+	else
+		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env.example")
+	fi
 }
 
 ## VARIABLES
