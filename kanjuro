@@ -47,6 +47,8 @@ export project_name
 export project_dir
 export kanjuro_dir
 export kanjuro_scripts_dir
+export KANJURO_PROXY
+export KANJURO_ASK_ENV
 export -f kanjuro-docker-compose
 export -f kanjuro-cli
 export -f kanjuro_project_is_running

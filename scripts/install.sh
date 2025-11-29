@@ -113,9 +113,11 @@ if [ -d "$project_dir/storage" ]; then
 fi
 
 # Permissions
-echo "Setting permissions..."
+if [[ "$KANJURO_PROXY" != "true" ]]; then
+	echo "Setting permissions..."
 
-kanjuro-cli permissions
+	kanjuro-cli permissions
+fi
 
 # Done
 echo "$project_name installed successfully!"

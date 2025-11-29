@@ -60,6 +60,10 @@ else
 	fi
 fi
 
-kanjuro-cli permissions
+if [[ "$KANJURO_PROXY" != "true" ]]; then
+	echo "Setting permissions..."
+
+	kanjuro-cli permissions
+fi
 
 echo "Updated successfully!"
