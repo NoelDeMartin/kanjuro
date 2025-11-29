@@ -12,6 +12,9 @@ if ! kanjuro_project_is_running; then
 	exit 1
 fi
 
+project_dir=${project_dir:?}
+project_name=${project_name:?}
+project_is_laravel=${project_is_laravel:?}
 service=${1:-app}
 
 kanjuro-docker-compose exec "$service" sh

@@ -7,6 +7,8 @@ if [[ $(type -t kanjuro-cli) != function ]]; then
 fi
 
 project_dir=${project_dir:?}
+project_name=${project_name:?}
+project_is_laravel=${project_is_laravel:?}
 
 # Abort on errors
 set -e

@@ -8,6 +8,7 @@ fi
 
 project_dir=${project_dir:?}
 project_name=${project_name:?}
+project_is_laravel=${project_is_laravel:?}
 
 # Check if installing is necessary
 if [ -f "$project_dir/.env" ]; then
