@@ -15,7 +15,9 @@ if [ -z "$wwwdata_uid" ]; then
 	exit 1
 fi
 
-sudo chown -R "$wwwdata_uid":docker "$project_dir/storage"
+if [[ "$project_is_laravel" == "true" ]]; then
+	sudo chown -R "$wwwdata_uid":docker "$project_dir/storage"
+fi
 
 # Database
 if grep -q "DB_CONNECTION=sqlite" .env; then

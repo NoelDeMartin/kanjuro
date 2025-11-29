@@ -21,7 +21,7 @@ if kanjuro_project_is_running; then
 	kanjuro-cli restart
 
 	# Update Laravel
-	if [ -d "$project_dir/storage" ]; then
+	if [[ "$project_is_laravel" == "true" ]]; then
 		kanjuro-docker-compose exec app php artisan config:cache
 		kanjuro-docker-compose exec app php artisan event:cache
 		kanjuro-docker-compose exec app php artisan optimize
@@ -41,7 +41,7 @@ if kanjuro_project_is_running; then
 else
 
 	# Update Laravel
-	if [ -d "$project_dir/storage" ]; then
+	if [[ "$project_is_laravel" == "true" ]]; then
 		kanjuro-docker-compose run --rm app php artisan config:cache
 		kanjuro-docker-compose run --rm app php artisan event:cache
 		kanjuro-docker-compose run --rm app php artisan optimize

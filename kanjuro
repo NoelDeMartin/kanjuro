@@ -36,6 +36,12 @@ function prepare_project_vars() {
 		# shellcheck disable=SC1090
 		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env.example")
 	fi
+
+	if kanjuro-docker-compose run --rm app sh -c 'grep -q "laravel/framework" composer.json 2>/dev/null'; then
+		project_is_laravel=true
+	else
+		project_is_laravel=false
+	fi
 }
 
 ## VARIABLES
@@ -45,6 +51,7 @@ kanjuro_scripts_dir="$kanjuro_dir/scripts"
 ## EXPORTS
 export project_name
 export project_dir
+export project_is_laravel
 export kanjuro_dir
 export kanjuro_scripts_dir
 export KANJURO_PROXY

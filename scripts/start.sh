@@ -15,9 +15,13 @@ if ! kanjuro_project_is_running; then
 fi
 
 # Link storage
-kanjuro-docker-compose exec app php artisan storage:unlink
-kanjuro-docker-compose exec app php artisan storage:link --relative
+if [[ "$project_is_laravel" == "true" ]]; then
+	kanjuro-docker-compose exec app php artisan storage:unlink
+	kanjuro-docker-compose exec app php artisan storage:link --relative
+fi
 
 # Publish assets
-rm "$project_dir"/public -rf
-kanjuro-docker-compose cp "app:/app/public/." "$project_dir/public"
+if [[ "$KANJURO_PROXY" != "true" ]]; then
+	rm "$project_dir"/public -rf
+	kanjuro-docker-compose cp "app:/app/public/." "$project_dir/public"
+fi

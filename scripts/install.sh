@@ -82,7 +82,7 @@ fi
 nginx-agora enable "$project_name"
 
 # Prepare Laravel
-if [ -d "$project_dir/storage" ]; then
+if [[ "$project_is_laravel" == "true" ]]; then
 	echo "Initializing Laravel..."
 
 	kanjuro-docker-compose run --rm app php artisan key:generate
