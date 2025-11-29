@@ -30,8 +30,10 @@ function prepare_project_vars() {
 	fi
 
 	if [[ -f "$project_dir/.env" ]]; then
+		# shellcheck disable=SC1090
 		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env")
 	else
+		# shellcheck disable=SC1090
 		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env.example")
 	fi
 }
