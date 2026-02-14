@@ -29,6 +29,7 @@ if kanjuro_project_is_running; then
 		kanjuro-docker-compose exec app php artisan optimize
 		kanjuro-docker-compose exec app php artisan route:cache
 		kanjuro-docker-compose exec app php artisan view:cache
+		kanjuro-docker-compose exec app php artisan cache:clear
 
 		# Update Statamic
 		if kanjuro-docker-compose exec app grep -q "statamic/cms" composer.json; then
@@ -49,6 +50,7 @@ else
 		kanjuro-docker-compose run --rm app php artisan optimize
 		kanjuro-docker-compose run --rm app php artisan route:cache
 		kanjuro-docker-compose run --rm app php artisan view:cache
+		kanjuro-docker-compose run --rm app php artisan cache:clear
 
 		# Update Statamic
 		if kanjuro-docker-compose run --rm app grep -q "statamic/cms" composer.json; then
