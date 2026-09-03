@@ -10,12 +10,6 @@ project_dir=${project_dir:?}
 project_name=${project_name:?}
 project_is_laravel=${project_is_laravel:?}
 
-# Check if installing is necessary
-if [ -f "$project_dir/.env" ]; then
-	echo "Already installed!"
-	exit 1
-fi
-
 # Abort and clean up on error
 trap "clean_up" ERR
 
@@ -30,44 +24,6 @@ function clean_up() {
 
 	exit 1
 }
-
-function ask_resend_key() {
-	echo "If you want to send emails, please introduce your Resend key:"
-	read -r RESEND_KEY
-}
-
-# Prepare .env
-echo "Preparing environment..."
-
-cp .env.example .env
-
-if [ -n "$KANJURO_ASK_ENV" ]; then
-	IFS=',' read -ra env_vars <<<"$KANJURO_ASK_ENV"
-
-	for var in "${env_vars[@]}"; do
-		var=$(echo "$var" | xargs)
-
-		if [ -z "$var" ]; then
-			continue
-		fi
-
-		echo "Please enter a value for $var:"
-		read -r value
-
-		if [ -n "$value" ]; then
-			sed -i "s/^${var}=.*/${var}=${value}/" .env
-		fi
-	done
-fi
-
-# Prepare resend
-if grep -q "DB_CONNECTION=sqlite" .env; then
-	ask_resend_key
-
-	if [ -n "$RESEND_KEY" ]; then
-		sed -i "s/^RESEND_KEY=.*/RESEND_KEY=$RESEND_KEY/" .env
-	fi
-fi
 
 # Prepare nginx-agora
 echo "Registering nginx-agora site..."

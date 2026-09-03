@@ -2,7 +2,12 @@
 
 ## FUNCTIONS
 function kanjuro-docker-compose() {
-	docker compose -f "$project_dir"/docker-compose.yml "$@"
+	if [ ! -f "${project_dir:-$PWD}/.env" ]; then
+		echo "The current project has not been configured yet, please run \"kanjuro install\" to set it up." >&2
+		exit 1
+	fi
+
+	docker compose -f "${project_dir:-$PWD}"/docker-compose.yml "$@"
 }
 
 function kanjuro-cli() {
@@ -15,27 +20,78 @@ function kanjuro_project_is_running() {
 	fi
 }
 
-function prepare_project_vars() {
+function ask_resend_key() {
+	echo "If you want to send emails, please introduce your Resend key:"
+	read -r RESEND_KEY
+}
+
+function validate_project_dir() {
 	project_dir="$PWD"
 	project_name=$(basename "$PWD")
 
 	if [[ "$project_dir" == "$kanjuro_dir" ]]; then
-		echo "Please, run this command from the project's directory"
+		echo "Please, run this command from the project's directory" >&2
 		exit 1
 	fi
 
 	if [[ ! -f "$project_dir/.env.example" ]]; then
-		echo "Couldn't find .env.example, are you sure $project_dir is a valid project?"
+		echo "Couldn't find .env.example, are you sure $project_dir is a valid project?" >&2
+		exit 1
+	fi
+}
+
+function prepare_env() {
+	validate_project_dir
+
+	if [ -f "$project_dir/.env" ]; then
+		echo "Already installed!"
 		exit 1
 	fi
 
-	if [[ -f "$project_dir/.env" ]]; then
-		# shellcheck disable=SC1090
-		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env")
-	else
-		# shellcheck disable=SC1090
-		source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env.example")
+	# Prepare .env
+	echo "Preparing environment..."
+
+	cp "$project_dir/.env.example" "$project_dir/.env"
+
+	if [ -n "$KANJURO_ASK_ENV" ]; then
+		IFS=',' read -ra env_vars <<<"$KANJURO_ASK_ENV"
+
+		for var in "${env_vars[@]}"; do
+			var=$(echo "$var" | xargs)
+
+			if [ -z "$var" ]; then
+				continue
+			fi
+
+			echo "Please enter a value for $var:"
+			read -r value
+
+			if [ -n "$value" ]; then
+				sed -i "s/^${var}=.*/${var}=${value}/" "$project_dir/.env"
+			fi
+		done
 	fi
+
+	# Prepare resend
+	if grep -q "DB_CONNECTION=sqlite" "$project_dir/.env"; then
+		ask_resend_key
+
+		if [ -n "$RESEND_KEY" ]; then
+			sed -i "s/^RESEND_KEY=.*/RESEND_KEY=$RESEND_KEY/" "$project_dir/.env"
+		fi
+	fi
+}
+
+function prepare_project_vars() {
+	validate_project_dir
+
+	if [ ! -f "$project_dir/.env" ]; then
+		echo "The current project has not been configured yet, please run \"kanjuro install\" to set it up." >&2
+		exit 1
+	fi
+
+	# shellcheck disable=SC1090
+	source <(grep -vE '^(\s*#|\s*$)' "$project_dir/.env")
 
 	if kanjuro-docker-compose run --rm app sh -c 'grep -q "laravel/framework" composer.json 2>/dev/null'; then
 		project_is_laravel=true
@@ -91,7 +147,13 @@ case "$command" in
 	kanjuro-docker-compose "${@:2}"
 	;;
 
-'install' | 'permissions' | 'shell' | 'start' | 'update')
+'install')
+	prepare_env
+	prepare_project_vars
+
+	"$kanjuro_scripts_dir/install.sh" "${@:2}"
+	;;
+'permissions' | 'shell' | 'start' | 'update')
 	prepare_project_vars
 
 	"$kanjuro_scripts_dir/$command.sh" "${@:2}"
