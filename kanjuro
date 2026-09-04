@@ -73,11 +73,20 @@ function prepare_env() {
 	fi
 
 	# Prepare resend
-	if grep -q "DB_CONNECTION=sqlite" "$project_dir/.env"; then
+	if grep -q "RESEND_KEY=" "$project_dir/.env"; then
 		ask_resend_key
 
 		if [ -n "$RESEND_KEY" ]; then
 			sed -i "s/^RESEND_KEY=.*/RESEND_KEY=$RESEND_KEY/" "$project_dir/.env"
+		fi
+	fi
+
+	# Prepare sqlite
+	if grep -q "DB_CONNECTION=sqlite" "$project_dir/.env"; then
+		mkdir -p "$project_dir/database"
+
+		if [ ! -f "$project_dir/database/database.sqlite" ]; then
+			touch "$project_dir/database/database.sqlite"
 		fi
 	fi
 }

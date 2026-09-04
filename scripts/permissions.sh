@@ -22,6 +22,6 @@ if [[ "$project_is_laravel" == "true" ]]; then
 fi
 
 # Database
-if grep -q "DB_CONNECTION=sqlite" .env; then
-	sudo chown -R "$wwwdata_uid":docker database
+if grep -q "DB_CONNECTION=sqlite" "$project_dir/.env"; then
+	sudo chown -R "$wwwdata_uid":docker "$project_dir/database"
 fi

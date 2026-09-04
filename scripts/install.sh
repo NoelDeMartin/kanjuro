@@ -22,6 +22,10 @@ function clean_up() {
 		rm "$project_dir"/.env
 	fi
 
+	if [ -f "$project_dir/database/database.sqlite" ]; then
+		echo "Warning: Database file 'database/database.sqlite' may have been created but not removed." >&2
+	fi
+
 	exit 1
 }
 
@@ -62,9 +66,7 @@ if [[ "$project_is_laravel" == "true" ]]; then
 	fi
 
 	# Prepare Database
-	if grep -q "DB_CONNECTION=sqlite" .env; then
-		touch "$project_dir/database/database.sqlite"
-
+	if grep -q "DB_CONNECTION=sqlite" "$project_dir/.env"; then
 		kanjuro-docker-compose run --rm app php artisan migrate --force
 	fi
 fi
