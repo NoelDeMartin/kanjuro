@@ -55,7 +55,7 @@ if [[ "$project_is_laravel" == "true" ]]; then
 
 	# Prepare Passport
 	if kanjuro-docker-compose run --rm app grep -q "laravel/passport" composer.json; then
-		kanjuro-docker-compose run --rm app php artisan passport:keys
+		kanjuro-docker-compose run --rm app php artisan passport:keys --force
 	fi
 
 	# Prepare Statamic
