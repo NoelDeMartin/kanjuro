@@ -16,6 +16,13 @@ set -e
 # Pull new code
 git -C "$project_dir" pull
 
+# Update nginx-agora
+nginx_file=$(find "$project_dir/nginx" -maxdepth 1 -name "*.conf" -printf "%f\n" 2>/dev/null | head -n 1)
+
+if [[ -n "$nginx_file" ]] && which nginx-agora >/dev/null 2>&1; then
+	nginx-agora update "$project_dir/nginx/$nginx_file" "$project_name"
+fi
+
 # Update containers
 kanjuro-docker-compose pull
 
