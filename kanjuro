@@ -7,6 +7,17 @@ function kanjuro-docker-compose() {
 		exit 1
 	fi
 
+	local network="nginx-agora-${project_name:-$(basename "${project_dir:-$PWD}")}"
+	if [[ -z $(docker network ls --quiet --filter name="^${network}$") ]]; then
+		docker network create "$network" >/dev/null 2>&1 || true
+	fi
+
+	if [[ $(docker container ls --quiet --filter name="^nginx-agora$") ]]; then
+		if ! docker network inspect "$network" --format '{{range .Containers}}{{println .Name}}{{end}}' 2>/dev/null | grep -Fxq "nginx-agora"; then
+			docker network connect "$network" nginx-agora >/dev/null 2>&1 || true
+		fi
+	fi
+
 	docker compose -f "${project_dir:-$PWD}"/docker-compose.yml "$@"
 }
 
