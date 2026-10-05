@@ -6,7 +6,11 @@ cli_name=${cli_name:?}
 cli_dir=${cli_dir:?}
 
 # Colours (only when stderr is a TTY)
-_cli_color() { [[ -t 2 ]] && tput "$@" 2>/dev/null || true; }
+_cli_color() {
+	if [[ -t 2 ]]; then
+		tput "$@" 2>/dev/null || true
+	fi
+}
 
 info() { printf '%s\n' "$*" >&2; }
 warn() { printf '%s%s%s\n' "$(_cli_color setaf 3)" "$*" "$(_cli_color sgr0)" >&2; }
