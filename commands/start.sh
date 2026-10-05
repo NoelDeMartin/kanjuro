@@ -1,19 +1,16 @@
-#!/usr/bin/env bash
+# usage: start
+# summary: Start a site. Honours KANJURO_PROXY.
+# shellcheck shell=bash
 
-if [[ $(type -t kanjuro-cli) != function ]]; then
-	echo "Don't call scripts directly, use the kanjuro binary!"
-
-	exit
-fi
+prepare_project_vars
 
 project_dir=${project_dir:?}
-project_name=${project_name:?}
 project_is_laravel=${project_is_laravel:?}
 
 kanjuro-docker-compose up -d
 
 if ! kanjuro_project_is_running; then
-	exit
+	die "Project failed to start"
 fi
 
 # Link storage
@@ -23,7 +20,7 @@ if [[ "$project_is_laravel" == "true" ]]; then
 fi
 
 # Publish assets
-if [[ "$KANJURO_PROXY" != "true" ]]; then
-	rm "$project_dir"/public -rf
+if [[ "${KANJURO_PROXY:-}" != "true" ]]; then
+	rm -rf "$project_dir/public"
 	kanjuro-docker-compose cp "app:/app/public/." "$project_dir/public"
 fi

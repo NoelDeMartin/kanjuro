@@ -2,7 +2,7 @@
     "emeraldwalk.runonsave": {
         "commands": [
             {
-                "match": ".*",
+                "match": "(\\.sh|/kanjuro)$",
                 "cmd": "shfmt -l -w ${file} && shellcheck -f diff ${file} | git apply"
             }
         ]
